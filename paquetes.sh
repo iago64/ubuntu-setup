@@ -4,10 +4,10 @@ set -e
 sudo apt update -y 
 
 # Paquetes Herramientas
-sudo apt install -y aptitude vim emacs nano strace ssh curl htop tree wget terminator xclip neofetch net-tools valgrind meld 
+sudo apt install -y aptitude vim emacs nano strace ssh curl htop tree wget terminator xclip neofetch net-tools valgrind meld blueman
 
 # Lenguajes de Programacion
-sudo apt install -y build-essential autotools-dev gcc gdb g++ python3 python3-pip openjdk-21-jdk openjdk-21-jre libcunit1-dev libcunit1 make cmake
+sudo apt install -y build-essential autotools-dev gcc gdb g++ python3 python3-pip openjdk-21-jdk openjdk-21-jre libcunit1-dev libcunit1 make cmake dotnet8
 
 # Installs nvm (Node Version Manager)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
