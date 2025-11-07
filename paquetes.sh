@@ -1,54 +1,69 @@
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
 
-# Update
-sudo apt update -y 
+# --- Update ---
+sudo apt update -y && sudo apt upgrade -y
 
-# Paquetes Herramientas
-sudo apt install -y aptitude vim emacs nano strace ssh curl htop tree wget terminator xclip neofetch net-tools valgrind meld blueman
+# --- Herramientas básicas ---
+sudo apt install -y \
+    aptitude vim emacs nano strace ssh curl htop tree wget terminator \
+    xclip neofetch net-tools valgrind meld blueman gnupg software-properties-common
 
-# Lenguajes de Programacion
-sudo apt install -y build-essential autotools-dev gcc gdb g++ python3 python3-pip openjdk-21-jdk openjdk-21-jre libcunit1-dev libcunit1 make cmake dotnet8
+# --- Lenguajes y compiladores ---
+sudo apt install -y \
+    build-essential autotools-dev gcc gdb g++ python3 python3-pip \
+    libcunit1-dev libcunit1 make cmake dotnet8
 
-# Installs nvm (Node Version Manager)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# --- Adoptium Temurin JDK 21 ---
+if ! command -v java >/dev/null 2>&1; then
+    wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add -
+    echo "deb [arch=$(dpkg --print-architecture)] https://packages.adoptium.net/artifactory/deb \
+    $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") main" \
+    | sudo tee /etc/apt/sources.list.d/adoptium.list > /dev/null
+    sudo apt update -y
+    sudo apt install -y temurin-21-jdk
+fi
 
-# Avoid restart shell
-\. "$HOME/.nvm/nvm.sh"
+# --- NVM / Node.js 24 / PNPM ---
+if [[ ! -d "$HOME/.nvm" ]]; then
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    source "$HOME/.nvm/nvm.sh"
+fi
 
-# Download and install Node.js (you may need to restart the terminal)
-nvm install 22
-node -v
-nvm current
+source "$HOME/.nvm/nvm.sh"
+nvm install 24
+nvm alias default 24
 corepack enable pnpm
-pnpm -v
 
-# Add Apps With snap
+# --- Aplicaciones Snap ---
 sudo snap install discord
-sudo snap install obs-studio 
-sudo snap install vlc 
+sudo snap install obs-studio
+sudo snap install vlc
 sudo snap install code --classic
 sudo snap install intellij-idea-community --classic
 
-# Add Docker's official GPG key:
-sudo apt-get install ca-certificates curl
+# --- Docker ---
+sudo apt install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the repository to Apt sources:
+if [[ ! -f /etc/apt/keyrings/docker.asc ]]; then
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+fi
+
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+  $(. /etc/os-release && echo \"${UBUNTU_CODENAME:-$VERSION_CODENAME}\") stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
+sudo apt update -y
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl start docker
-sudo systemctl enable docker 
-sudo usermod -aG docker $USER
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
 
-# ZSH
-sudo apt install zsh
-
-# Oh My ZSH
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+# --- ZSH + Oh My Zsh ---
+sudo apt install -y zsh
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+    RUNZSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
