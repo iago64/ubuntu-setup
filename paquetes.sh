@@ -6,7 +6,7 @@ IFS=$'\n\t'
 sudo apt update -y && sudo apt upgrade -y
 
 # --- Herramientas básicas ---
-sudo apt install -y aptitude vim emacs nano strace ssh curl htop tree wget terminator xclip net-tools valgrind meld blueman gnupg
+sudo apt install -y aptitude vim emacs nano strace ssh curl htop tree wget terminator xclip net-tools valgrind meld blueman gnupg zip
 
 # --- Lenguajes y compiladores ---
 sudo apt install -y build-essential autotools-dev gcc gdb g++ python3 python3-pip libcunit1-dev libcunit1 make cmake
