@@ -9,7 +9,14 @@ sudo apt update -y && sudo apt upgrade -y
 sudo apt install -y aptitude vim emacs nano strace ssh curl htop tree wget terminator xclip net-tools valgrind meld blueman gnupg
 
 # --- Lenguajes y compiladores ---
-sudo apt install -y build-essential autotools-dev gcc gdb g++ python3 python3-pip libcunit1-dev libcunit1 make cmake dotnet-sdk-10.0
+sudo apt install -y build-essential autotools-dev gcc gdb g++ python3 python3-pip libcunit1-dev libcunit1 make cmake
+
+# --- .NET ---
+wget https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
+sudo apt install -y dotnet-sdk-10.0
+
 
 # --- SDKMAN ---
 if [[ ! -d "$HOME/.sdkman" ]]; then
